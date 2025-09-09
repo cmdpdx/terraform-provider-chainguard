@@ -58,10 +58,10 @@ func (r *rolebindingResource) Metadata(_ context.Context, req resource.MetadataR
 // Schema defines the schema for the resource.
 func (r *rolebindingResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "IAM Rolebidning in the Chainguard platform.",
+		Description: "IAM role binding in the Chainguard platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Description:   "The UIDP of this rolebinding.",
+				Description:   "The UIDP of this role binding.",
 				Computed:      true,
 				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
@@ -98,7 +98,7 @@ func (r *rolebindingResource) Create(ctx context.Context, req resource.CreateReq
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Info(ctx, fmt.Sprintf("create rolebinding request: group=%s, role=%s, identity=%s", plan.Group, plan.Role, plan.Identity))
+	tflog.Info(ctx, fmt.Sprintf("create role binding request: group=%s, role=%s, identity=%s", plan.Group, plan.Role, plan.Identity))
 
 	// Create the rolebinding.
 	binding, err := r.prov.client.IAM().RoleBindings().Create(ctx, &iam.CreateRoleBindingRequest{
@@ -109,7 +109,7 @@ func (r *rolebindingResource) Create(ctx context.Context, req resource.CreateReq
 		},
 	})
 	if err != nil {
-		resp.Diagnostics.Append(errorToDiagnostic(err, "failed to create rolebinding"))
+		resp.Diagnostics.Append(errorToDiagnostic(err, "failed to create role binding"))
 		return
 	}
 
@@ -126,15 +126,15 @@ func (r *rolebindingResource) Read(ctx context.Context, req resource.ReadRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Info(ctx, fmt.Sprintf("read rolebinding request: id=%s", state.ID))
+	tflog.Info(ctx, fmt.Sprintf("read role binding request: id=%s", state.ID))
 
-	// Query for the role to update state
+	// Query for the role binding to update state
 	rbID := state.ID.ValueString()
 	bindingList, err := r.prov.client.IAM().RoleBindings().List(ctx, &iam.RoleBindingFilter{
 		Id: rbID,
 	})
 	if err != nil {
-		resp.Diagnostics.Append(errorToDiagnostic(err, "failed to list rolebindings"))
+		resp.Diagnostics.Append(errorToDiagnostic(err, "failed to list role bindings"))
 		return
 	}
 
@@ -154,7 +154,7 @@ func (r *rolebindingResource) Read(ctx context.Context, req resource.ReadRequest
 		resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 
 	default:
-		tflog.Error(ctx, fmt.Sprintf("rolebinding list returned %d bindings for id %q", c, rbID))
+		tflog.Error(ctx, fmt.Sprintf("role binding list returned %d bindings for id %q", c, rbID))
 		resp.Diagnostics.AddError("internal error", fmt.Sprintf("fatal data corruption: id %s matched more than one rolebinding", rbID))
 	}
 }

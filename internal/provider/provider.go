@@ -128,6 +128,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		NewImageTagResource,
 		NewRoleResource,
 		NewRolebindingResource,
+		NewRolebindingsResource,
 		NewSubscriptionResource,
 		NewBuildResource,
 	}
